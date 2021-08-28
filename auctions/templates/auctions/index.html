@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<ul class="flex-container">
+    {% for listing in listings %}
+        {% if listing.is_active %}
+            <li class="flex-item">
+                <div class="card" style="height: 25rem;">
+                    <img src="{{ listing.image_url }}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }}</h5>
+                        <p class="card-text">{{listing.description}}</p>
+                        <p>Current price: ${{ listing.current_price }}</p>
+                        <a href="{% url 'listing' listing.id %}" class="btn btn-primary btn-sm">See more</a>
+                    </div>
+                </div>
+            </li>
+            {% else %}
+            <li class="flex-item">
+                <div class="card" style="height: 25rem;">
+                    <img src="{{ listing.image_url }}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.title }} (CLOSED!)</h5>
+                        <p class="card-text">{{listing.description}}</p>
+                        <p>Current price: ${{ listing.current_price }}</p>
+                        <a href="{% url 'listing' listing.id %}" class="btn btn-primary btn-sm">See more</a>
+                    </div>
+                </div>
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endblock %}

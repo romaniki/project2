@@ -1,0 +1,121 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">                 
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <div class="row" style="padding: 10px">
+            <div class="col-sm">
+                <h3>{{ listing.title }}</h3>
+                <img src="{{ listing.image_url }}">
+            </div>
+            <div class="col-sm">
+                <h3>
+                    Details:
+                </h3>
+                <p><strong>Description:</strong> {{ listing.description }}</p>
+                <p><strong>Author:</strong> {{ listing.published_by }} </p>
+                <p><strong>Published at:</strong> {{listing.created_at}}</p>
+                <p><strong>Starting bid:</strong> ${{ listing.starting_bid }}</p>
+                <p><strong>Current price:</strong> ${{ listing.current_price }}</p>
+
+                {% if listing.is_active %}
+                    {% if user.is_authenticated %}
+                        {% if user.id != listing.published_by.id %}
+                            <a href="{% url 'bookmark' listing.id %}" role="button" class="btn btn-outline-success btn-sm">Add to Watchlist</a>
+                        {% endif %}
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        {% if user.id == listing.published_by.id %}
+                            <a href="{% url 'close' listing.id %}" role="button" class="btn btn-outline-danger btn-sm">Close the listing</a>
+                        {% endif %}
+                    {% endif %}
+                {% else %}
+                    {% if user == winner %}
+                        <h5>
+                            This auction is not active anymore.
+                        </h5>
+                        <p>Congratulions, <strong>{{ user.username }}</strong>. You are the winner of this auction</p>
+                    {% else %}
+                        <h5>
+                            This auction is not active anymore.
+                        </h5>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div>
+        {% if listing.is_active %}
+            {% if user.is_authenticated %}
+                {% if user.id != listing.published_by.id %}
+                    <form action="{% url 'listing' listing.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input class="form-control" type="number" name="user_bid" placeholder="Your bid">
+                        </div>
+                        <div class="form-group">
+                            <input class="btn btn-primary btn-sm" type="submit" value="Place bid" name="bid">
+                        </div>
+                    </form>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        </div>
+
+        <h2>Comments</h2>
+        {% if comments %}
+            {% for comment in comments %}
+                <div class="be-comment-content">
+                    <span class="be-comment-name">{{ comment.author }}</span>
+                    <span class="be-comment-time">
+                    {{ comment.created_on }}
+                    </span>
+                    <p class="be-comment-text">{{ comment.text }}</p>
+                </div>
+            {% endfor %}    
+        
+        {% else %}
+            <p>There are no comments on this item!</p>
+        {% endif %}
+        
+        {% if user.is_authenticated %}        
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input class="form-control" type="text" name="user_comment" placeholder="Write your comment here">
+                    </div>
+                    <div class="form-group">
+                        <input class="btn btn-primary btn-sm" type="submit" value="Post" name="comment" style='max-width: 50%'>
+                    </div>
+                </form>     
+        {% endif %} 
+        <hr>
+        <h2>Bid History</h2>
+        {% if bids %}
+            <table>
+                <tr>
+                    <th>Bidder</th>
+                    <th>Bid Amount</th>
+                    <th>Bid Time</th>
+                </tr>
+            {% for bid in bids %}
+                <tr>
+                    <td>{{ bid.bidder }}</td>
+                    <td>${{ bid.user_bid }}</td>
+                    <td>{{ bid.bidded_at }}</td>
+                </tr>
+            {% endfor %}
+        {% elif user.id == listing.published_by.id %}
+            <p>There are no bids on this item</p>
+        {% else %}
+            <p>There are no bids on this item. Make the first bid!</p>
+        {% endif %}
+    </div>
+{% endblock body %}

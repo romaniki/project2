@@ -1,0 +1,24 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Items in your watchlist:</h2>
+    
+    <ul class="flex-container">
+        {% for item in items %}
+            <li class="flex-item">
+                <div class="card" style="height: 25rem;">
+                    <img src="{{ item.image_url }}" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'listing' item.id %}">{{ item.title }}</a></h5>
+                        <p class="card-text">{{ item.description }}</p>
+                        <p>Current price: $ {{ item.starting_bid }}</p>
+                        <a href="{% url 'rmbookmark' item.id %}" role="button" class="btn btn-outline-danger btn-sm">Remove</a>
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            Your watchlist is empty.
+        {% endfor %}
+    </ul>
+
+{% endblock body %}
